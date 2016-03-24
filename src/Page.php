@@ -11,12 +11,6 @@ class Page extends Navigation implements PageInterface
     use HtmlAttributes;
 
     /**
-     * Menu item related model class.
-     * @var string
-     */
-    protected $model;
-
-    /**
      * @var string
      */
     protected $title;
@@ -52,16 +46,6 @@ class Page extends Navigation implements PageInterface
      * @var Page
      */
     protected $parent;
-
-    /**
-     * @param string|null $modelClass
-     */
-    public function __construct($modelClass = null)
-    {
-        $this->setModel($modelClass);
-
-        parent::__construct();
-    }
 
     /**
      * @param string|array|PageInterface|null $page
