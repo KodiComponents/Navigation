@@ -5,6 +5,7 @@ namespace KodiComponents\Navigation;
 use Illuminate\Routing\UrlGenerator;
 use KodiComponents\Support\HtmlAttributes;
 use KodiComponents\Navigation\Contracts\PageInterface;
+use KodiComponents\Navigation\Contracts\BadgeInterface;
 
 class Page extends Navigation implements PageInterface
 {
