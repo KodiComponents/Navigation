@@ -14,6 +14,11 @@ class Page extends Navigation implements PageInterface
     /**
      * @var string
      */
+    protected $id;
+
+    /**
+     * @var string
+     */
     protected $title;
 
     /**
@@ -56,9 +61,34 @@ class Page extends Navigation implements PageInterface
     public function addPage($page = null)
     {
         $page = parent::addPage($page);
+
         $page->setParent($this);
 
         return $page;
+    }
+
+    /**
+     * @return string
+     */
+    public function getId()
+    {
+        if (is_null($this->id)) {
+            return md5(implode('/', $this->getPath()));
+        }
+
+        return $this->id;
+    }
+
+    /**
+     * @param string $id
+     *
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+
+        return $this;
     }
 
     /**
@@ -139,6 +169,24 @@ class Page extends Navigation implements PageInterface
     public function getPath()
     {
         $data = [
+            $this->getTitle(),
+        ];
+
+        $page = $this;
+
+        while (! is_null($page = $page->getParent())) {
+            $data[] = $page->getTitle();
+        }
+
+        return array_reverse($data);
+    }
+
+    /**
+     * @return array
+     */
+    public function getPathArray()
+    {
+        $data = [
             $this->toArray(),
         ];
 
@@ -148,7 +196,7 @@ class Page extends Navigation implements PageInterface
             $data[] = $page->toArray();
         }
 
-        return $data;
+        return array_reverse($data);
     }
 
     /**
@@ -231,20 +279,6 @@ class Page extends Navigation implements PageInterface
     }
 
     /**
-     * @param string $title
-     *
-     * @return Page|false
-     */
-    public function findPageByTitle($title)
-    {
-        if ($this->getTitle() == $title) {
-            return $this;
-        }
-
-        return parent::findPageByTitle($title);
-    }
-
-    /**
      * @param PageInterface $page
      *
      * @return $this
@@ -306,12 +340,14 @@ class Page extends Navigation implements PageInterface
         }
 
         return [
-            'pages'      => parent::toArray(),
+            'child'      => parent::toArray(),
             'hasChild'   => $this->hasChild(),
+            'id'         => $this->getId(),
             'title'      => $this->getTitle(),
             'icon'       => $this->getIcon(),
             'priority'   => $this->getPriority(),
             'url'        => $this->getUrl(),
+            'path'       => $this->getPath(),
             'isActive'   => $this->isActive(),
             'attributes' => $this->htmlAttributesToString(),
             'badge'      => $this->getBadge(),
@@ -319,26 +355,19 @@ class Page extends Navigation implements PageInterface
     }
 
     /**
-     * @return \Illuminate\View\View|\Illuminate\Contracts\View\Factory
+     * @param string|null $view
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function render()
+    public function render($view = null)
     {
-        return view(config('navigation.view.page', 'navigation::page'), $this->toArray());
-    }
+        if (is_null($view)) {
+            $view = config('navigation.view.navigation', 'navigation::page');
+        }
 
-    protected function findActive()
-    {
-        $url = url()->current();
+        $data          = $this->toArray();
+        $data['pages'] = $this->getPages();
 
-        $this->getPages()->each(function (PageInterface $page) use ($url) {
-            if (strpos($url, $page->getUrl()) !== false) {
-                Navigation::$foundPages[] = [
-                    levenshtein($url, $page->getUrl()),
-                    $page,
-                ];
-            }
-
-            $page->findActive();
-        });
+        return view($view, $data)->render();
     }
 }

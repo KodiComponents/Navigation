@@ -62,11 +62,17 @@ class Badge implements BadgeInterface
     }
 
     /**
-     * @return \Illuminate\View\View|\Illuminate\Contracts\View\Factory
+     * @param string|null $view
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function render()
+    public function render($view = null)
     {
-        return view(config('navigation.view.badge', 'navigation::badge'), $this->toArray());
+        if (is_null($view)) {
+            $view = config('navigation.view.navigation', 'navigation::badge');
+        }
+
+        return view($view, $this->toArray());
     }
 
     /**

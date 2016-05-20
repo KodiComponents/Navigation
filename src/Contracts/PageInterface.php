@@ -2,17 +2,15 @@
 
 namespace KodiComponents\Navigation\Contracts;
 
-use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Contracts\Support\Renderable;
+use Illuminate\Support\Collection;
 
-interface PageInterface extends Renderable, Arrayable
+interface PageInterface extends NavigationInterface
 {
+
     /**
-     * @param string|array|PageInterface|null $page
-     *
-     * @return Page
+     * @return string
      */
-    public function addPage($page = null);
+    public function getId();
 
     /**
      * @return string
@@ -40,10 +38,25 @@ interface PageInterface extends Renderable, Arrayable
     public function isActive();
 
     /**
+     * @return $this
+     */
+    public function setActive();
+
+    /**
      * @return PageInterface
      */
     public function getParent();
 
+    /**
+     * @return array
+     */
+    public function getPath();
+
+    /**
+     * @return array
+     */
+    public function getPathArray();
+    
     /**
      * @return \Closure
      */
