@@ -4,7 +4,9 @@
 	<ul class="sidebar-menu">
 		@yield('sidebar.ul.top')
 
-		{!! app(\KodiComponents\Navigation\Navigation::class)->render() !!}
+		@foreach($pages as $page)
+			{!! $page->render() !!}
+		@endforeach
 
 		@yield('sidebar.ul.bottom')
 	</ul>
