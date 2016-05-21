@@ -24,9 +24,14 @@ interface NavigationInterface extends Renderable, Arrayable
     public function countPages();
 
     /**
+     * @return bool
+     */
+    public function hasChild();
+
+    /**
      * @param string|array|PageInterface $page
      *
-     * @return PageInterface
+     * @return PageInterface|null
      */
     public function addPage($page);
 
@@ -34,6 +39,13 @@ interface NavigationInterface extends Renderable, Arrayable
      * @return \Closure
      */
     public function getAccessLogic();
+
+    /**
+     * @param \Closure $accessLogic
+     *
+     * @return $this
+     */
+    public function setAccessLogic(\Closure $accessLogic);
 
     /**
      * @return $this
@@ -44,4 +56,14 @@ interface NavigationInterface extends Renderable, Arrayable
      * @return $this
      */
     public function sort();
+
+    /**
+     * @return null|string
+     */
+    public function getCurrentUrl();
+
+    /**
+     * @return PageInterface|null
+     */
+    public function getCurrentPage();
 }

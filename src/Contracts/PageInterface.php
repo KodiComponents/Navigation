@@ -56,14 +56,33 @@ interface PageInterface extends NavigationInterface
      * @return array
      */
     public function getPathArray();
-    
-    /**
-     * @return \Closure
-     */
-    public function getAccessLogic();
 
     /**
      * @return bool
      */
     public function checkAccess();
+
+    /**
+     * @param \Closure $callback
+     *
+     * @return $this
+     */
+    public function setPages(\Closure $callback);
+
+    /**
+     * @return bool
+     */
+    public function isChild();
+
+    /**
+     * @param PageInterface $page
+     *
+     * @return bool
+     */
+    public function isChildOf(PageInterface $page);
+
+    /**
+     * @return int
+     */
+    public function getLevel();
 }

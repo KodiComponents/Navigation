@@ -35,7 +35,7 @@ class Navigation implements NavigationInterface
     }
 
     /**
-     * @var PageCollection
+     * @var PageCollection|PageInterface[]
      */
     protected $items;
 
@@ -52,7 +52,7 @@ class Navigation implements NavigationInterface
     /**
      * @var PageInterface|null
      */
-    private $current;
+    private $currentPage;
 
     /**
      * Navigation constructor.
@@ -88,6 +88,7 @@ class Navigation implements NavigationInterface
     public function setCurrentUrl($url)
     {
         $this->currentUrl = $url;
+        $this->currentPage = null;
 
         return $this;
     }
@@ -105,14 +106,17 @@ class Navigation implements NavigationInterface
     /**
      * @param string|array|PageInterface $page
      *
-     * @return PageInterface
+     * @return PageInterface|null
      */
     public function addPage($page)
     {
         if (is_array($page)) {
             $page = static::makePage($page);
         } elseif (is_string($page) or is_null($page)) {
-            $page = app(PageInterface::class, [$page]);
+            $title = $page;
+
+            $page = app(PageInterface::class);
+            $page->setTitle($title);
         }
 
         if (! ($page instanceof PageInterface)) {
@@ -125,7 +129,7 @@ class Navigation implements NavigationInterface
     }
 
     /**
-     * @return PageCollection
+     * @return PageCollection|PageInterface[]
      */
     public function getPages()
     {
@@ -148,18 +152,6 @@ class Navigation implements NavigationInterface
     }
 
     /**
-     * @param Closure $callback
-     *
-     * @return $this
-     */
-    public function setPages(Closure $callback)
-    {
-        call_user_func($callback, $this);
-
-        return $this;
-    }
-
-    /**
      * @param Closure $accessLogic
      *
      * @return $this
@@ -167,6 +159,10 @@ class Navigation implements NavigationInterface
     public function setAccessLogic(Closure $accessLogic)
     {
         $this->accessLogic = $accessLogic;
+
+        foreach ($this->getPages() as $page) {
+            $page->setAccessLogic($accessLogic);
+        }
 
         return $this;
     }
@@ -182,6 +178,26 @@ class Navigation implements NavigationInterface
     }
 
     /**
+     * @return $this
+     */
+    public function filterByAccessRights()
+    {
+        $this->items = $this->getPages()->filterByAccessRights();
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function sort()
+    {
+        $this->items = $this->getPages()->sortByPriority();
+
+        return $this;
+    }
+
+    /**
      * @return bool
      */
     public function hasChild()
@@ -192,11 +208,11 @@ class Navigation implements NavigationInterface
     /**
      * @return PageInterface|null
      */
-    public function getCurrent()
+    public function getCurrentPage()
     {
         $this->findActivePage();
 
-        return $this->current;
+        return $this->currentPage;
     }
 
     /**
@@ -228,31 +244,11 @@ class Navigation implements NavigationInterface
     }
 
     /**
-     * @return $this
-     */
-    public function filterByAccessRights()
-    {
-        $this->items = $this->getPages()->filterByAccessRights();
-
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function sort()
-    {
-        $this->items = $this->getPages()->sortByPriority();
-
-        return $this;
-    }
-
-    /**
      * @return bool
      */
     protected function findActivePage()
     {
-        if (! is_null($this->current)) {
+        if (! is_null($this->currentPage)) {
             return true;
         }
 
@@ -260,16 +256,7 @@ class Navigation implements NavigationInterface
 
         $url = $this->getCurrentUrl();
 
-        $this->getPages()->each(function (PageInterface $page) use ($url, & $foundPages) {
-            if (strpos($url, $page->getUrl()) !== false) {
-                $foundPages[] = [
-                    levenshtein($url, $page->getUrl()),
-                    $page,
-                ];
-            }
-
-            $page->findActive($url, $foundPages);
-        });
+        $this->findActive($url, $foundPages);
 
         $calculates = [];
 
@@ -278,11 +265,11 @@ class Navigation implements NavigationInterface
         }
 
         if (count($calculates)) {
-            $this->current = array_get($foundPages, array_search(min($calculates), $calculates).'.1');
+            $this->currentPage = array_get($foundPages, array_search(min($calculates), $calculates).'.1');
         }
 
-        if (! is_null($this->current)) {
-            $this->current->setActive();
+        if (! is_null($this->currentPage)) {
+            $this->currentPage->setActive();
         }
 
         return false;
@@ -290,12 +277,12 @@ class Navigation implements NavigationInterface
 
     /**
      * @param string $url
-     * @param PageInterface[] $foundPages
-     *
+     * @param array $foundPages
      */
     protected function findActive($url, array & $foundPages)
     {
         $this->getPages()->each(function (PageInterface $page) use ($url, &$foundPages) {
+            
             if (strpos($url, $page->getUrl()) !== false) {
                 $foundPages[] = [
                     levenshtein($url, $page->getUrl()),
