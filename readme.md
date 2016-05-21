@@ -83,7 +83,8 @@ $subPage = $newPage->addPage('Sub page');
 $subPage->setPages(function(PageInterface $page) {
 	$page->addPage(...);
 	$page->addPage(...);
-	$page->setPages(function(PageInterface $page) {
+	
+	$page->addPage(...)->setPages(function(PageInterface $page) {
 		...
 	});
 });
