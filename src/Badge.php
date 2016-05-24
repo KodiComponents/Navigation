@@ -69,7 +69,7 @@ class Badge implements BadgeInterface
     public function render($view = null)
     {
         if (is_null($view)) {
-            $view = config('navigation.view.navigation', 'navigation::badge');
+            $view = config('navigation.view.badge', 'navigation::badge');
         }
 
         return view($view, $this->toArray());

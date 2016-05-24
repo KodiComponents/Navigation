@@ -425,7 +425,7 @@ class Page extends Navigation implements PageInterface
     public function render($view = null)
     {
         if (is_null($view)) {
-            $view = config('navigation.view.navigation', 'navigation::page');
+            $view = config('navigation.view.page', 'navigation::page');
         }
 
         $data = $this->toArray();
