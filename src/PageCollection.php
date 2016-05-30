@@ -61,6 +61,17 @@ class PageCollection extends Collection
     }
 
     /**
+     * @return static
+     */
+    public function filterEmptyPages()
+    {
+        return $this->filter(function(PageInterface $page) {
+            $page->filterEmptyPages();
+            return !(is_null($page->getUrl()) and ! $page->hasChild());
+        });
+    }
+
+    /**
      * @return $this
      */
     public function sortByPriority()

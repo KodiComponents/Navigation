@@ -190,6 +190,16 @@ class Navigation implements NavigationInterface
     /**
      * @return $this
      */
+    public function filterEmptyPages()
+    {
+        $this->items = $this->getPages()->filterEmptyPages();
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
     public function sort()
     {
         $this->items = $this->getPages()->sortByPriority();
@@ -232,6 +242,8 @@ class Navigation implements NavigationInterface
     {
         $this->findActivePage();
         $this->filterByAccessRights();
+        $this->filterEmptyPages();
+
         $this->sort();
 
         if (is_null($view)) {
