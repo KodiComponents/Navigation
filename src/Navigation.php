@@ -3,6 +3,7 @@
 namespace KodiComponents\Navigation;
 
 use Closure;
+use Illuminate\Support\Str;
 use KodiComponents\Navigation\Contracts\NavigationInterface;
 use KodiComponents\Navigation\Contracts\PageInterface;
 
@@ -284,6 +285,10 @@ class Navigation implements NavigationInterface
             $this->currentPage->setActive();
         }
 
+        if (config('navigation.aliases')) {
+            $this->findActiveByAliases($url);
+        }
+
         return false;
     }
 
@@ -303,6 +308,23 @@ class Navigation implements NavigationInterface
             }
 
             $page->findActive($url, $foundPages);
+        });
+    }
+
+    /**
+     * @param string $url
+     */
+    protected function findActiveByAliases($url)
+    {
+        $this->getPages()->each(function (PageInterface $page) use ($url) {
+            foreach ($page->getAliases() as $alias) {
+                if (Str::is($alias, $url)) {
+                    $page->setActive();
+                    break;
+                }
+            }
+
+            $page->findActiveByAliases($url);
         });
     }
 }

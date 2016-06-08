@@ -2,10 +2,10 @@
 
 namespace KodiComponents\Navigation;
 
-use KodiComponents\Support\HtmlAttributes;
 use Illuminate\Contracts\Routing\UrlGenerator;
-use KodiComponents\Navigation\Contracts\PageInterface;
 use KodiComponents\Navigation\Contracts\BadgeInterface;
+use KodiComponents\Navigation\Contracts\PageInterface;
+use KodiComponents\Support\HtmlAttributes;
 
 class Page extends Navigation implements PageInterface
 {
@@ -59,6 +59,11 @@ class Page extends Navigation implements PageInterface
     protected $options = [];
 
     /**
+     * @var array
+     */
+    protected $aliases = [];
+
+    /**
      * Page constructor.
      *
      * @param string      $title
@@ -88,6 +93,40 @@ class Page extends Navigation implements PageInterface
         if (! is_null($icon)) {
             $this->setIcon($icon);
         }
+    }
+
+    /**
+     * @return array
+     */
+    public function getAliases()
+    {
+        return $this->aliases;
+    }
+
+    /**
+     * @return array
+     */
+    public function hasAliases()
+    {
+        return count($this->aliases) > 0;
+    }
+
+    /**
+     * @param string|array $aliases
+     *
+     * @return $this
+     */
+    public function addAlias($aliases)
+    {
+        if (! is_array($aliases)) {
+            $aliases = func_get_args();
+        }
+
+        foreach ($aliases as $alias) {
+            $this->aliases[] = $alias;
+        }
+
+        return $this;
     }
 
     /**

@@ -85,4 +85,21 @@ interface PageInterface extends NavigationInterface
      * @return int
      */
     public function getLevel();
+
+    /**
+     * @return array
+     */
+    public function getAliases();
+
+    /**
+     * @return bool
+     */
+    public function hasAliases();
+
+    /**
+     * @param string|array $aliases
+     *
+     * @return $this
+     */
+    public function addAlias($aliases);
 }
