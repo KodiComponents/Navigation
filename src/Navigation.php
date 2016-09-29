@@ -286,7 +286,9 @@ class Navigation implements NavigationInterface
         }
 
         if (config('navigation.aliases')) {
-            $this->findActiveByAliases($url);
+            $this->findActiveByAliases(
+                ltrim(parse_url($url, PHP_URL_PATH), '/')
+            );
         }
 
         return false;
