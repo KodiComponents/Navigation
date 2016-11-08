@@ -24,4 +24,21 @@ class NavigationServiceProvider extends ServiceProvider
             __DIR__.'/../config/navigation.php' => config_path('navigation.php'),
         ], 'config');
     }
+
+    /**
+     * Get a list of files that should be compiled for the package.
+     *
+     * @return array
+     */
+    public static function compiles()
+    {
+        return [
+            base_path('vendor\kodicomponents\navigation\src\Contracts\NavigationInterface.php'),
+            base_path('vendor\kodicomponents\navigation\src\Contracts\PageInterface.php'),
+            base_path('vendor\kodicomponents\navigation\src\Contracts\BadgeInterface.php'),
+            base_path('vendor\kodicomponents\navigation\src\PageCollection.php'),
+            base_path('vendor\kodicomponents\navigation\src\Badge.php'),
+            base_path('vendor\kodicomponents\navigation\src\Page.php'),
+        ];
+    }
 }
