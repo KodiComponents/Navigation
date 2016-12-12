@@ -2,11 +2,13 @@
 
 namespace KodiComponents\Navigation;
 
-use KodiComponents\Support\HtmlAttributes;
+use Closure;
 use KodiComponents\Navigation\Contracts\BadgeInterface;
+use KodiComponents\Support\HtmlAttributes;
 
 class Badge implements BadgeInterface
 {
+
     use HtmlAttributes;
 
     /**
@@ -15,15 +17,45 @@ class Badge implements BadgeInterface
     protected $value;
 
     /**
+     * @var int
+     */
+    protected $priority = 0;
+
+    /**
      * Badge constructor.
      *
-     * @param null $value
+     * @param string|Closure|null $value
+     * @param int $priority
      */
-    public function __construct($value = null)
+    public function __construct($value = null, $priority = 0)
     {
-        $this->setValue($value);
+        if (! is_null($value)) {
+            $this->setValue($value);
+        }
+
+        $this->setPriority($priority);
 
         $this->setHtmlAttribute('class', 'label pull-right');
+    }
+
+    /**
+     * @return integer
+     */
+    public function getPriority()
+    {
+        return $this->priority;
+    }
+
+    /**
+     * @param int $priority
+     *
+     * @return $this
+     */
+    public function setPriority($priority)
+    {
+        $this->priority = (int) $priority;
+
+        return $this;
     }
 
     /**
@@ -31,11 +63,15 @@ class Badge implements BadgeInterface
      */
     public function getValue()
     {
+        if (is_callable($this->value)) {
+            return call_user_func($this->value, $this);
+        }
+
         return $this->value;
     }
 
     /**
-     * @param string $value
+     * @param string|Closure $value
      *
      * @return $this
      */
@@ -51,12 +87,8 @@ class Badge implements BadgeInterface
      */
     public function toArray()
     {
-        if (! $this->hasClassProperty('label-', 'bg-')) {
-            $this->setHtmlAttribute('class', 'label-primary');
-        }
-
         return [
-            'value'      => $this->getValue(),
+            'value' => $this->getValue(),
             'attributes' => $this->htmlAttributesToString(),
         ];
     }

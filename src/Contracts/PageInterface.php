@@ -2,7 +2,7 @@
 
 namespace KodiComponents\Navigation\Contracts;
 
-use Illuminate\Support\Collection;
+use Closure;
 
 interface PageInterface extends NavigationInterface
 {
@@ -63,11 +63,11 @@ interface PageInterface extends NavigationInterface
     public function checkAccess();
 
     /**
-     * @param \Closure $callback
+     * @param Closure $callback
      *
      * @return $this
      */
-    public function setPages(\Closure $callback);
+    public function setPages(Closure $callback);
 
     /**
      * @return bool

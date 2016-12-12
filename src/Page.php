@@ -2,7 +2,9 @@
 
 namespace KodiComponents\Navigation;
 
+use Closure;
 use Illuminate\Contracts\Routing\UrlGenerator;
+use Illuminate\Support\Collection;
 use KodiComponents\Navigation\Contracts\BadgeInterface;
 use KodiComponents\Navigation\Contracts\PageInterface;
 use KodiComponents\Support\HtmlAttributes;
@@ -34,9 +36,9 @@ class Page extends Navigation implements PageInterface
     protected $url;
 
     /**
-     * @var Badge
+     * @var BadgeInterface[]|Collection
      */
-    protected $badge;
+    protected $badges;
 
     /**
      * @var int
@@ -74,7 +76,8 @@ class Page extends Navigation implements PageInterface
      */
     public function __construct($title = null, $url = null, $id = null, $priority = 100, $icon = null)
     {
-        parent::__construct();
+        $this->items = new PageCollection();
+        $this->badges = new Collection();
 
         $this->title = $title;
 
@@ -144,11 +147,11 @@ class Page extends Navigation implements PageInterface
     }
 
     /**
-     * @param \Closure $callback
+     * @param Closure $callback
      *
      * @return $this
      */
-    public function setPages(\Closure $callback)
+    public function setPages(Closure $callback)
     {
         call_user_func($callback, $this);
 
@@ -288,11 +291,11 @@ class Page extends Navigation implements PageInterface
     }
 
     /**
-     * @return Badge
+     * @return BadgeInterface[]|Collection
      */
-    public function getBadge()
+    public function getBadges()
     {
-        return $this->badge;
+        return $this->badges;
     }
 
     /**
@@ -302,23 +305,25 @@ class Page extends Navigation implements PageInterface
      */
     public function setBadge(BadgeInterface $badge)
     {
-        $this->badge = $badge;
+        $this->badges->push($badge);
 
         return $this;
     }
 
     /**
-     * @param string   $value
-     * @param \Closure $closure
+     * @param Closure|string $value
+     * @param array $attributes
      *
      * @return $this
      */
-    public function addBadge($value, \Closure $closure = null)
+    public function addBadge($value, array $attributes = null)
     {
-        $this->badge = app(BadgeInterface::class, [$value]);
+        $this->setBadge(
+            $badge = app(BadgeInterface::class, [$value])
+        );
 
-        if (is_callable($closure)) {
-            call_user_func($closure, $this->badge);
+        if (is_array($attributes)) {
+            $badge->setHtmlAttributes($attributes);
         }
 
         return $this;
@@ -441,8 +446,7 @@ class Page extends Navigation implements PageInterface
             $this->setHtmlAttribute('class', $class);
         }
 
-        return [
-            'child' => parent::toArray(),
+        return parent::toArray() + [
             'hasChild' => $this->hasChild(),
             'id' => $this->getId(),
             'title' => $this->getTitle(),
@@ -452,7 +456,9 @@ class Page extends Navigation implements PageInterface
             'path' => $this->getPath(),
             'isActive' => $this->isActive(),
             'attributes' => $this->htmlAttributesToString(),
-            'badge' => $this->getBadge(),
+            'badges' => $this->getBadges()->sortBy(function (BadgeInterface $badge) {
+                return $badge->getPriority();
+            }),
         ];
     }
 

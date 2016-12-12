@@ -1,23 +1,39 @@
-@if($page->hasChild())
-<li {!! $page->htmlAttributesToString() !!}>
+@if($hasChild)
+<li {!! $attributes !!}>
     <a href="#" >
-        {!! $page->getIcon() !!}
-        <span>{!! $page->getTitle() !!}</span>
+        {!! $icon !!}
+        <span>{!! $title !!}</span>
+
+        @if($badges->count() > 0)
+            <span class="sidebar-page-badges">
+        @foreach($badges as $badge)
+                    {!! $badge->render() !!}
+                @endforeach
+        </span>
+        @endif
+
         <i class="fa fa-angle-left pull-right"></i>
     </a>
 
     <ul class="treeview-menu">
-        @foreach($pages as $child)
-           {!! $child->render() !!}
+        @foreach($child as $subPage)
+           {!! $subPage->render() !!}
         @endforeach
     </ul>
 </li>
 @else
-<li {!! $page->htmlAttributesToString() !!}>
-    <a href="{{ $page->getUrl() }}">
-        {!! $page->getIcon() !!}
-        <span>{!! $page->getTitle() !!}</span>
-        {!! $page->getBadge() !!}
+<li {!! $attributes !!}>
+    <a href="{{ $url }}">
+        {!! $icon !!}
+        <span>{!! $title !!}</span>
+
+        @if($badges->count() > 0)
+        <span class="sidebar-page-badges">
+        @foreach($badges as $badge)
+        {!! $badge->render() !!}
+        @endforeach
+        </span>
+        @endif
     </a>
 </li>
 @endif
