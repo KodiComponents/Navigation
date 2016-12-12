@@ -3,6 +3,7 @@
 namespace KodiComponents\Navigation;
 
 use KodiComponents\Support\HtmlAttributes;
+use Illuminate\Contracts\View\Factory as ViewContract;
 use KodiComponents\Navigation\Contracts\BadgeInterface;
 
 class Badge implements BadgeInterface
@@ -15,6 +16,10 @@ class Badge implements BadgeInterface
     protected $value;
 
     /**
+    /**
+     * @var ViewContract
+     */
+    protected $view;
      * Badge constructor.
      *
      * @param null $value
@@ -47,6 +52,16 @@ class Badge implements BadgeInterface
     }
 
     /**
+     * @param ViewContract $view
+     *
+     * @return void
+     */
+    public function setViewFactory(ViewContract $view)
+    {
+        $this->view = $view;
+    }
+
+    /**
      * @return array
      */
     public function toArray()
@@ -64,7 +79,7 @@ class Badge implements BadgeInterface
     /**
      * @param string|null $view
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return ViewContract|\Illuminate\View\View
      */
     public function render($view = null)
     {
@@ -72,7 +87,10 @@ class Badge implements BadgeInterface
             $view = config('navigation.view.badge', 'navigation::badge');
         }
 
-        return view($view, $this->toArray());
+        return $this->view->make(
+            $view,
+            $this->toArray()
+        );
     }
 
     /**

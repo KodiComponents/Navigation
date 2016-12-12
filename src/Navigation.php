@@ -3,6 +3,9 @@
 namespace KodiComponents\Navigation;
 
 use Closure;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Routing\UrlGenerator;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Str;
 use KodiComponents\Navigation\Contracts\NavigationInterface;
 use KodiComponents\Navigation\Contracts\PageInterface;
@@ -56,17 +59,33 @@ class Navigation implements NavigationInterface
     private $currentPage;
 
     /**
+     * @var Application
+     */
+    protected $app;
+
+    /**
+     * @var UrlGenerator
+     */
+    protected $url;
+
+    /**
+     * @var Factory
+     */
+    protected $view;
+
+    /**
      * Navigation constructor.
      *
-     * @param array|null $pages
+     * @param Application $application
+     * @param UrlGenerator $url
+     * @param Factory $view
      */
-    public function __construct(array $pages = null)
+    public function __construct(Application $application, UrlGenerator $url, Factory $view)
     {
+        $this->setApplication($application);
+        $this->setViewFactory($view);
+        $this->setUrlGenerator($url);
         $this->items = new PageCollection();
-
-        if (! is_null($pages)) {
-            $this->setFromArray($pages);
-        }
     }
 
     /**
@@ -75,7 +94,7 @@ class Navigation implements NavigationInterface
     public function getCurrentUrl()
     {
         if (is_null($this->currentUrl)) {
-            return url()->current();
+            return $this->url->current();
         }
 
         return $this->currentUrl;
@@ -116,13 +135,17 @@ class Navigation implements NavigationInterface
         } elseif (is_string($page) or is_null($page)) {
             $title = $page;
 
-            $page = app(PageInterface::class);
+            $page = $this->app->make(PageInterface::class);
             $page->setTitle($title);
         }
 
         if (! ($page instanceof PageInterface)) {
             return;
         }
+
+        $page->setApplication($this->app);
+        $page->setViewFactory($this->view);
+        $page->setUrlGenerator($this->url);
 
         $this->getPages()->push($page);
 
@@ -251,7 +274,7 @@ class Navigation implements NavigationInterface
             $view = config('navigation.view.navigation', 'navigation::navigation');
         }
 
-        return view($view, [
+        return $this->view->make($view, [
             'pages' => $this->getPages(),
         ])->render();
     }
@@ -328,5 +351,35 @@ class Navigation implements NavigationInterface
 
             $page->findActiveByAliases($url);
         });
+    }
+
+    /**
+     * @param Application $application
+     *
+     * @return void
+     */
+    public function setApplication(Application $application)
+    {
+        $this->app = $application;
+    }
+
+    /**
+     * @param UrlGenerator $url
+     *
+     * @return void
+     */
+    public function setUrlGenerator(UrlGenerator $url)
+    {
+        $this->url = $url;
+    }
+
+    /**
+     * @param Factory $view
+     *
+     * @return void
+     */
+    public function setViewFactory(Factory $view)
+    {
+        $this->view = $view;
     }
 }
