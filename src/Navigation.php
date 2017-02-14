@@ -4,6 +4,7 @@ namespace KodiComponents\Navigation;
 
 use Closure;
 use Illuminate\Support\Str;
+use KodiComponents\Navigation\Contracts\BadgeInterface;
 use KodiComponents\Navigation\Contracts\NavigationInterface;
 use KodiComponents\Navigation\Contracts\PageInterface;
 
@@ -21,7 +22,16 @@ class Navigation implements NavigationInterface
         $page = app($class);
 
         foreach ($data as $key => $value) {
-            if ($key != 'pages' and method_exists($page, $method = 'set'.ucfirst($key))) {
+            if ($key == 'badge') {
+                if ($value instanceof BadgeInterface) {
+                    $page->setBadge($value);
+                    continue;
+                } else if (!is_array($value)) {
+                    $value = [$value];
+                }
+
+                call_user_func_array([$page, 'addBadge'], $value);
+            } else if ($key != 'pages' and method_exists($page, $method = 'set'.ucfirst($key))) {
                 $page->{$method}($value);
             }
         }
@@ -231,7 +241,9 @@ class Navigation implements NavigationInterface
      */
     public function toArray()
     {
-        return $this->getPages()->toArray();
+        return [
+            'pages' => $this->getPages()
+        ];
     }
 
     /**
@@ -251,9 +263,7 @@ class Navigation implements NavigationInterface
             $view = config('navigation.view.navigation', 'navigation::navigation');
         }
 
-        return view($view, [
-            'pages' => $this->getPages(),
-        ])->render();
+        return view($view, $this->toArray())->render();
     }
 
     /**
