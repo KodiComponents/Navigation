@@ -68,10 +68,10 @@ class Page extends Navigation implements PageInterface
     /**
      * Page constructor.
      *
-     * @param string      $title
+     * @param string $title
      * @param string|null $url
      * @param string|null $id
-     * @param int|null    $priority
+     * @param int|null $priority
      * @param string|null $icon
      */
     public function __construct($title = null, $url = null, $id = null, $priority = 100, $icon = null)
@@ -322,7 +322,7 @@ class Page extends Navigation implements PageInterface
             $badge = app(BadgeInterface::class)
         );
 
-		$badge->setValue($value);
+        $badge->setValue($value);
 
         if (is_array($attributes)) {
             $badge->setHtmlAttributes($attributes);
@@ -350,7 +350,7 @@ class Page extends Navigation implements PageInterface
 
         return $this;
     }
-    
+
     /**
      * @return bool
      */
@@ -449,19 +449,19 @@ class Page extends Navigation implements PageInterface
         }
 
         return parent::toArray() + [
-            'hasChild' => $this->hasChild(),
-            'id' => $this->getId(),
-            'title' => $this->getTitle(),
-            'icon' => $this->getIcon(),
-            'priority' => $this->getPriority(),
-            'url' => $this->getUrl(),
-            'path' => $this->getPath(),
-            'isActive' => $this->isActive(),
-            'attributes' => $this->htmlAttributesToString(),
-            'badges' => $this->getBadges()->sortBy(function (BadgeInterface $badge) {
-                return $badge->getPriority();
-            }),
-        ];
+                'hasChild' => $this->hasChild(),
+                'id' => $this->getId(),
+                'title' => $this->getTitle(),
+                'icon' => $this->getIcon(),
+                'priority' => $this->getPriority(),
+                'url' => $this->getUrl(),
+                'path' => $this->getPath(),
+                'isActive' => $this->isActive(),
+                'attributes' => $this->htmlAttributesToString(),
+                'badges' => $this->getBadges()->sortBy(function (BadgeInterface $badge) {
+                    return $badge->getPriority();
+                }),
+            ];
     }
 
     /**
