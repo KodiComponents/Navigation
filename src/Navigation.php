@@ -88,6 +88,15 @@ class Navigation implements NavigationInterface
     }
 
     /**
+     * Getter for private access property
+     * @return Page
+     */
+    public function getCurrentPage()
+    {
+        return $this->currentPage;
+    }
+    
+    /**
      * @return null|string
      */
     public function getCurrentUrl()
