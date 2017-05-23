@@ -64,7 +64,7 @@ class Navigation implements NavigationInterface
      * @var PageInterface|null
      */
     private $currentPage;
-
+    
     /**
      * Navigation constructor.
      *
@@ -77,6 +77,14 @@ class Navigation implements NavigationInterface
         if (! is_null($pages)) {
             $this->setFromArray($pages);
         }
+    }
+    
+    /**
+     * Setter for private access property
+     */
+    public function setCurrentPage(Page $page)
+    {
+        $this->currentPage = $page;
     }
 
     /**
