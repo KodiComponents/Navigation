@@ -314,7 +314,7 @@ class Navigation implements NavigationInterface
             
             if (strpos($url, $page->getUrl()) !== false) {
                 $foundPages[] = [
-                    levenshtein($url, $page->getUrl()),
+                    levenshtein(substr($url, 0, 255), substr($page->getUrl(), 0, 255)),
                     $page,
                 ];
             }
