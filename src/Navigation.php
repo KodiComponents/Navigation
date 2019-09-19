@@ -4,6 +4,7 @@ namespace KodiComponents\Navigation;
 
 use Closure;
 use Illuminate\Support\Str;
+use Illuminate\Support\Arr;
 use KodiComponents\Navigation\Contracts\BadgeInterface;
 use KodiComponents\Navigation\Contracts\NavigationInterface;
 use KodiComponents\Navigation\Contracts\PageInterface;
@@ -288,7 +289,7 @@ class Navigation implements NavigationInterface
         }
 
         if (count($calculates)) {
-            $this->currentPage = array_get($foundPages, array_search(min($calculates), $calculates).'.1');
+            $this->currentPage = Arr::get($foundPages, array_search(min($calculates), $calculates).'.1');
         }
 
         if (! is_null($this->currentPage)) {
@@ -311,7 +312,7 @@ class Navigation implements NavigationInterface
     protected function findActive($url, array & $foundPages)
     {
         $this->getPages()->each(function (PageInterface $page) use ($url, &$foundPages) {
-            
+
             if (strpos($url, $page->getUrl()) !== false) {
                 $foundPages[] = [
                     levenshtein(substr($url, 0, 255), substr($page->getUrl(), 0, 255)),
