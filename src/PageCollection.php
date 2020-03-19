@@ -99,17 +99,21 @@ class PageCollection extends Collection
     }
 
     /**
+     * @param  mixed  $pages [optional]
      * @param PageInterface $page
      *
      * @return $this
      */
-    public function push($page)
+    public function push(...$pages)
     {
-        if (! ($page instanceof PageInterface)) {
-            throw new \InvalidArgumentException('$page must be instance of PageInterface');
+
+        foreach ($pages as $page) {
+            if (! ($page instanceof PageInterface)) {
+                throw new \InvalidArgumentException('$page must be instance of PageInterface');
+            }
+
+            $this->offsetSet($page->getId(), $page);
         }
-        
-        $this->offsetSet($page->getId(), $page);
 
         return $this;
     }
